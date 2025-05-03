@@ -8,6 +8,13 @@
 #define FILE_SIZE 1e7
 #define ERROR printf("?\n")
 
+size_t string_length(const char *s) {
+    size_t length = 0;
+    while (*s++ != '\0')
+        length++;
+    return length;
+}
+
 int main(int argc, char *argv[]) {
     bool append_mode = false;
     int c;
@@ -34,7 +41,6 @@ int main(int argc, char *argv[]) {
                 pointer++;
             }
         }
-        pointer--;
         fclose(file);
         file = fopen(filename, "r");
         char line[BUF_SIZE];
@@ -81,9 +87,9 @@ begin:
             else if (!strcmp(argumenty[0], ",p"))
                 for (int i = 0; i < pocet_radku; i++)
                     printf("%s", file_buffer[i]);
-            else if (!strcmp(argumenty[0], "w")) {
+            else if (strcmp(argumenty[0], "w") == 0) {
                 filename = argumenty[1];
-                if (!strcmp(argumenty[1], "") || strcmp(argumenty[2], ""))  {
+                if (strcmp(argumenty[1], "") == 0 || strcmp(argumenty[2], "") != 0)  {
                     if (argc < 2) {
                         ERROR;
                         continue;
@@ -96,7 +102,7 @@ begin:
                 fclose(file);
                 printf("%d\n", pocet_charu);
             }
-            else if (!strcmp(argumenty[0], "")) {
+            else if (strcmp(argumenty[0], "") == 0) {
                 if (pointer < pocet_radku)
                     pointer++;
                 else
@@ -108,16 +114,14 @@ begin:
                 else
                     ERROR;
             }
-            else if (!strcmp(argumenty[0], "q"))
+            else if (strcmp(argumenty[0], "q") == 0)
                 break;
             else ERROR;
-        } else if (!strcmp(input, ".")) {
+        } else if (strcmp(input, ".") == 0) {
             append_mode = false;
         } else {
-            for (size_t i = 0; i < strlen(input); i++)
-                pocet_charu++;
-
             strcat(input, "\n");
+            pocet_charu += string_length(input);
             file_buffer[pocet_radku++] = malloc(BUF_SIZE);
             char **file_buffer_cpy = malloc(sizeof(char*)*FILE_SIZE);
             for (int i = 0; i < pocet_radku; i++) {
@@ -127,7 +131,8 @@ begin:
             for (int i = pointer-1; i+1 < pocet_radku; i++) {
                 strcpy(file_buffer[i+1], file_buffer_cpy[i]);
             }
-            strcpy(file_buffer[pointer++], input);
+            strcpy(file_buffer[pointer-1], input);
+            pointer++;
             free(file_buffer_cpy);
         }
     }
