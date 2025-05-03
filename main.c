@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
     int c;
     FILE *file;
     char *filename;
-    char *file_buffer = malloc(sizeof(char)*FILE_SIZE);
+    char **file_buffer = malloc(sizeof(char*)*FILE_SIZE);
     int pocet_charu = 0;
     int pocet_radku = 0;
     int pointer = 1;
@@ -29,13 +29,19 @@ int main(int argc, char *argv[]) {
         }
         file = fopen(filename, "r");
         while ((c = getc(file)) != EOF) {
+            pocet_charu++;
             if (c == '\n') {
-                pocet_radku++;
                 pointer++;
             }
-            file_buffer[pocet_charu++] = c;
         }
         pointer--;
+        fclose(file);
+        file = fopen(filename, "r");
+        char line[BUF_SIZE];
+        while (fgets(line, sizeof(line), file)) {
+            file_buffer[pocet_radku] = malloc(strlen(line) + 1);
+            strcpy(file_buffer[pocet_radku++], line);
+        }
         fclose(file);
         printf("%d\n", pocet_charu);
     }
@@ -53,17 +59,17 @@ begin:
             int pocet_pismen = 0;
             int pocet_args = 0;
             for (int i = 0; i < strlen(input); i++) {
-                if ((input[i] == *" " && slovo)) {
+                if ((input[i] == ' ' && slovo)) {
                     strcpy(argumenty[pocet_args++], argument);
                     memset(argument, 0, BUF_SIZE);
                     pocet_pismen = 0;
                     slovo = false;
                 }
-                if (input[i] != *" ") {
+                if (input[i] != ' ') {
                     slovo = true;
                     argument[pocet_pismen++] = input[i];
                 }
-                if ((i + 1 == strlen(input)) && input[i] != *" ") {
+                if ((i + 1 == strlen(input)) && input[i] != ' ') {
                     strcpy(argumenty[pocet_args++], argument);
                     memset(argument, 0, BUF_SIZE);
                     pocet_pismen = 0;
@@ -73,7 +79,8 @@ begin:
             if (!strcmp(argumenty[0], "a"))
                 append_mode = true;
             else if (!strcmp(argumenty[0], ",p"))
-                printf(file_buffer);
+                for (int i = 0; i < pocet_radku; i++)
+                    printf("%s", file_buffer[i]);
             else if (!strcmp(argumenty[0], "w")) {
                 filename = argumenty[1];
                 if (!strcmp(argumenty[1], "") || strcmp(argumenty[2], ""))  {
@@ -84,7 +91,8 @@ begin:
                     filename = argv[1];
                 }
                 file = fopen(filename, "w");
-                fprintf(file, "%s", file_buffer);
+                for (int i = 0; i < pocet_radku; i++)
+                    fprintf(file, "%s", file_buffer[i]);
                 fclose(file);
                 printf("%d\n", pocet_charu);
             }
@@ -107,10 +115,14 @@ begin:
             append_mode = false;
         } else {
             for (size_t i = 0; i < strlen(input); i++)
-                file_buffer[pocet_charu++] = input[i];
-            file_buffer[pocet_charu++] = *"\n";
-            pocet_radku++;
-            pointer++;
+                pocet_charu++;
+            strcat(input, "\n");
+            file_buffer[pocet_radku++] = malloc(BUF_SIZE);
+            for (int i = pointer; i+1 < pocet_radku; i++) {
+                printf("%d", i);
+                strcpy(file_buffer[i+1], file_buffer[i]);
+            }
+            strcpy(file_buffer[pointer++], input);
         }
     }
     free(file_buffer);
