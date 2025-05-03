@@ -116,13 +116,19 @@ begin:
         } else {
             for (size_t i = 0; i < strlen(input); i++)
                 pocet_charu++;
+
             strcat(input, "\n");
             file_buffer[pocet_radku++] = malloc(BUF_SIZE);
-            for (int i = pointer; i+1 < pocet_radku; i++) {
-                printf("%d", i);
-                strcpy(file_buffer[i+1], file_buffer[i]);
+            char **file_buffer_cpy = malloc(sizeof(char*)*FILE_SIZE);
+            for (int i = 0; i < pocet_radku; i++) {
+                file_buffer_cpy[i] = (char*)malloc(strlen(file_buffer[i]) + 1);
+                strcpy(file_buffer_cpy[i], file_buffer[i]);
+            }
+            for (int i = pointer-1; i+1 < pocet_radku; i++) {
+                strcpy(file_buffer[i+1], file_buffer_cpy[i]);
             }
             strcpy(file_buffer[pointer++], input);
+            free(file_buffer_cpy);
         }
     }
     free(file_buffer);
