@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
     char **file_buffer = malloc(sizeof(char*)*FILE_SIZE);
     int pocet_charu = 0;
     int pocet_radku = 0;
-    int pointer = 1;
+    int pointer = 0;
     if (argc > 1) {
         if (argc >= 3) {
             printf("Too many arguments!\n");
@@ -104,13 +104,15 @@ begin:
             }
             else if (strcmp(argumenty[0], "") == 0) {
                 if (pointer < pocet_radku)
-                    pointer++;
+                    printf("%s", file_buffer[pointer++]);
                 else
                     ERROR;
             }
             else if (atoi(input)) {
-                if (atoi(input) <= pocet_radku)
-                    pointer = atoi(input);
+                if (atoi(input) <= pocet_radku) {
+                    pointer = atoi(input)-1;
+                    printf("%s", file_buffer[pointer++]);
+                }
                 else
                     ERROR;
             }
@@ -128,10 +130,10 @@ begin:
                 file_buffer_cpy[i] = (char*)malloc(strlen(file_buffer[i]) + 1);
                 strcpy(file_buffer_cpy[i], file_buffer[i]);
             }
-            for (int i = pointer-1; i+1 < pocet_radku; i++) {
+            for (int i = pointer; i+1 < pocet_radku; i++) {
                 strcpy(file_buffer[i+1], file_buffer_cpy[i]);
             }
-            strcpy(file_buffer[pointer-1], input);
+            strcpy(file_buffer[pointer], input);
             pointer++;
             free(file_buffer_cpy);
         }
